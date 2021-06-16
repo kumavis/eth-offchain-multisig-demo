@@ -10,9 +10,8 @@ homepage = "https://github.com/KZen-networks"
 repository = "https://github.com/KZen-networks/emerald-city"
 license = "GPL-3.0-or-later"
 
-
 [lib]
-crate-type = ["staticlib", "lib"]
+crate-type = ["cdylib", "rlib"]
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rand = "0.6.5"

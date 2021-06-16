@@ -14,6 +14,8 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/multi-party-ecdsa/blob/master/LICENSE>
 */
 
+use wasm_bindgen::prelude::*;
+
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
@@ -52,3 +54,13 @@ extern crate wasm_bindgen;
 
 #[cfg(all(test, target_arch = "wasm32"))]
 extern crate wasm_bindgen_test;
+
+#[wasm_bindgen]
+extern {
+    fn alert(s: &str);
+}
+
+#[wasm_bindgen]
+pub fn greet() {
+    alert("i dont think we're in kansas anymore !");
+}
