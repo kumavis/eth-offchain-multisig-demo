@@ -1,7 +1,7 @@
 import * as wasm from "emerald-city";
 
-console.log('2 of 3 test - start')
-wasm.test_keygen_t2_n3();
-console.log('2 of 3 test - end')
+const signThreshold = 2;
+const numParties = 3;
+const keys = wasm.keygen(signThreshold, numParties);
+console.log("JS: generated keys", keys);
 
-globalThis.wasm = wasm

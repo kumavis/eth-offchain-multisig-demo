@@ -56,18 +56,22 @@ extern crate wasm_bindgen;
 extern crate wasm_bindgen_test;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+macro_rules! console_log {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("i dont think we're in kansas anymore !");
-}
-
-#[wasm_bindgen]
-pub fn test_keygen_t2_n3() {
-    keygen_t_n_parties(2, 3);
+pub fn keygen(t: usize, n: usize) -> JsValue {
+    console_log!("WASM: creating keys...");
+    let key_data = keygen_t_n_parties(t, n);
+    JsValue::from_serde(&key_data).unwrap()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
