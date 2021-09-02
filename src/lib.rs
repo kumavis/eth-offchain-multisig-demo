@@ -74,6 +74,15 @@ pub fn keygen(t: usize, n: usize) -> JsValue {
     JsValue::from_serde(&key_data).unwrap()
 }
 
+#[wasm_bindgen]
+pub fn verify_sign(t: usize, n: usize, keys: JsValue) {
+    console_log!("WASM: verify sign...");
+    let key_data: MultiKey = keys.into_serde().unwrap();
+    // FIXME: `s` is hard-coded for t=2, n=3
+    sign(key_data, t, n, vec![0, 1 ,2]);
+    console_log!("WASM: sign verification complete.");
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 pub const BENCH_SAMPLE_SIZE: usize = 10;
 
@@ -116,10 +125,12 @@ use gg_2018::mta::*;
 // use self::emerald_city::gg_2018::party_i::*;
 use gg_2018::party_i::*;
 
+type MultiKey = (Vec<Keys>, Vec<SharedKeys>, Vec<GE>, GE, VerifiableSS);
+
 pub fn keygen_t_n_parties(
     t: usize,
     n: usize,
-) -> (Vec<Keys>, Vec<SharedKeys>, Vec<GE>, GE, VerifiableSS) {
+) -> MultiKey {
     let parames = Parameters {
         threshold: t,
         share_count: n.clone(),
@@ -214,10 +225,8 @@ pub fn keygen_t_n_parties(
 }
 
 #[allow(dead_code)]
-pub fn sign(t: usize, n: usize, ttag: usize, s: Vec<usize>) {
-    // full key gen emulation
-    let (party_keys_vec, shared_keys_vec, _pk_vec, y, vss_scheme) =
-        keygen_t_n_parties(t.clone(), n);
+pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
+    let (party_keys_vec, shared_keys_vec, _pk_vec, y, vss_scheme) = keys;
 
     let private_vec = (0..shared_keys_vec.len())
         .map(|i| PartyPrivate::set_private(party_keys_vec[i].clone(), shared_keys_vec[i].clone()))

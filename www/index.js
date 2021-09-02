@@ -5,3 +5,5 @@ const numParties = 3;
 const keys = wasm.keygen(signThreshold, numParties);
 console.log("JS: generated keys", keys);
 
+wasm.verify_sign(signThreshold, numParties, keys);
+
