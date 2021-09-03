@@ -17,8 +17,10 @@ function hide(el) {
 
 let actionType = 'keygen';
 let actionData = {};
-// Message must be Vec<u8>
-const message = [79, 77, 69, 82];
+// Message must be Vec<u8>, do not use Uint8Array as that
+// gets serialized to a JSON object.
+const messages = [[79, 77, 69, 82], [38, 22, 90, 212], [34, 56, 29, 32]];
+const message = messages[Math.floor(Math.random() * messages.length)];
 
 if (window.Worker) {
   const worker = new Worker('worker.js');
