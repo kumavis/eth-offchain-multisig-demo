@@ -1,0 +1,23 @@
+{
+  "name": "emerald-city",
+  "collaborators": [
+    "Omer <omer@kzencorp.com>"
+  ],
+  "description": "WASM/HW-friendly lightweight client application for threshold ECDSA",
+  "version": "0.2.0",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KZen-networks/emerald-city"
+  },
+  "files": [
+    "emerald_city_bg.wasm",
+    "emerald_city.js",
+    "emerald_city_bg.js",
+    "emerald_city.d.ts"
+  ],
+  "module": "emerald_city.js",
+  "homepage": "https://github.com/KZen-networks",
+  "types": "emerald_city.d.ts",
+  "sideEffects": false
+}

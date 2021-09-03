@@ -18,5 +18,5 @@ module.exports = {
         use: { loader: "worker-loader" },
       },
     ],
-  },
+  }
 };
