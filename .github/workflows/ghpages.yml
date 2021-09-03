@@ -1,0 +1,58 @@
+name: Build GhPages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Build
+      run: |
+        yarn
+        yarn build
+
+    - name: GitHub Pages
+      # You may pin to the exact commit or the version.
+      uses: crazy-max/ghaction-github-pages@db4476a01402e1a7ce05f41832040eef16d14925
+      # uses: crazy-max/ghaction-github-pages@v2.5.0
+      with:
+        # Git domain (default github.com)
+        # domain: # optional, default is github.com
+        # GitHub repository where assets will be deployed (default $GITHUB_REPOSITORY)
+        # repo: # optional
+        # Git branch where assets will be deployed
+        # target_branch: # optional, default is gh-pages
+        # Create incremental commit instead of doing push force
+        # keep_history: # optional, default is false
+        # Allow an empty commit to be created
+        # allow_empty_commit: # optional, default is true
+        # Build directory to deploy
+        build_dir: 'dist'
+        # The committer name and email address
+        # committer: # optional
+        # The author name and email address
+        # author: # optional
+        # Commit message
+        # commit_message: # optional
+        # Write the given domain name to the CNAME file
+        # fqdn: # optional
+        # Allow Jekyll to build your site
+        # jekyll: # optional, default is true
+        # If enabled, nothing will be pushed
+        # dry_run: # optional, default is false
+        # Enable verbose output
+        # verbose: # optional, default is false
