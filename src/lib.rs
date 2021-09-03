@@ -33,6 +33,24 @@ pub mod curv;
 pub mod gg_2018;
 pub mod paillier;
 
+use curv::arithmetic::num_bigint::from;
+use curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
+use curv::cryptographic_primitives::hashing::traits::Hash;
+use curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
+use curv::cryptographic_primitives::secret_sharing::feldman_vss::VerifiableSS;
+use curv::elliptic::curves::secp256_k1::{FE, GE};
+use curv::elliptic::curves::traits::*;
+use gg_2018::mta::*;
+use gg_2018::party_i::*;
+
+type MultiKey = (Vec<Keys>, Vec<SharedKeys>, Vec<GE>, GE, VerifiableSS);
+
+#[derive(Serialize, Deserialize)]
+pub struct SignOutput {
+    local_sig_vec: Vec<LocalSignature>,
+    r_vec: Vec<GE>,
+}
+
 #[derive(Copy, PartialEq, Eq, Clone, Debug)]
 pub enum Error {
     InvalidKey,
@@ -62,70 +80,42 @@ extern "C" {
 }
 
 macro_rules! console_log {
-    // Note that this is using the `log` function imported above during
-    // `bare_bones`
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    console_error_panic_hook::set_once();
+    console_log!("WASM: module started.");
 }
 
 #[wasm_bindgen]
 pub fn keygen(t: usize, n: usize) -> JsValue {
     console_log!("WASM: creating keys...");
     let key_data = keygen_t_n_parties(t, n);
+    console_log!("WASM: key generation complete.");
     JsValue::from_serde(&key_data).unwrap()
 }
 
 #[wasm_bindgen]
-pub fn verify_sign(t: usize, n: usize, keys: JsValue) {
-    console_log!("WASM: verify sign...");
-    let key_data: MultiKey = keys.into_serde().unwrap();
+pub fn sign_message(t: usize, ttag: usize, keys: JsValue, message: JsValue) -> JsValue {
+    console_log!("WASM: sign message...");
+    let keys: MultiKey = keys.into_serde().unwrap();
+    let message: Vec<u8> = message.into_serde().unwrap();
     // FIXME: `s` is hard-coded for t=2, n=3
-    sign(key_data, t, n, vec![0, 1 ,2]);
-    console_log!("WASM: sign verification complete.");
+    let sign_output = sign(keys, t, ttag, vec![0, 1 ,2], message);
+    console_log!("WASM: message signing complete.");
+    JsValue::from_serde(&sign_output).unwrap()
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-pub const BENCH_SAMPLE_SIZE: usize = 10;
-
-/*
-    Multi-party ECDSA
-
-    Copyright 2018 by Kzen Networks
-
-    This file is part of Multi-party ECDSA library
-    (https://github.com/KZen-networks/multi-party-ecdsa)
-
-    Multi-party ECDSA is free software: you can redistribute
-    it and/or modify it under the terms of the GNU General Public
-    License as published by the Free Software Foundation, either
-    version 3 of the License, or (at your option) any later version.
-
-    @license GPL-3.0+ <https://github.com/KZen-networks/multi-party-ecdsa/blob/master/LICENSE>
-*/
-
-// extern crate emerald_city;
-
-// use self::emerald_city::curv::arithmetic::num_bigint::from;
-use curv::arithmetic::num_bigint::from;
-// use self::emerald_city::curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
-use curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
-
-// use self::emerald_city::curv::cryptographic_primitives::hashing::traits::Hash;
-use curv::cryptographic_primitives::hashing::traits::Hash;
-// use self::emerald_city::curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
-use curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
-// use self::emerald_city::curv::cryptographic_primitives::secret_sharing::feldman_vss::VerifiableSS;
-use curv::cryptographic_primitives::secret_sharing::feldman_vss::VerifiableSS;
-// use self::emerald_city::curv::elliptic::curves::secp256_k1::{FE, GE};
-use curv::elliptic::curves::secp256_k1::{FE, GE};
-// use self::emerald_city::curv::elliptic::curves::traits::*;
-use curv::elliptic::curves::traits::*;
-
-// use self::emerald_city::gg_2018::mta::*;
-use gg_2018::mta::*;
-// use self::emerald_city::gg_2018::party_i::*;
-use gg_2018::party_i::*;
-
-type MultiKey = (Vec<Keys>, Vec<SharedKeys>, Vec<GE>, GE, VerifiableSS);
+#[wasm_bindgen]
+pub fn verify_signature(ttag: usize, sign_output: JsValue) {
+    console_log!("WASM: verify signature...");
+    let sign_output: SignOutput = sign_output.into_serde().unwrap();
+    verify(ttag, sign_output);
+    console_log!("WASM: signature verification complete.");
+}
 
 pub fn keygen_t_n_parties(
     t: usize,
@@ -225,7 +215,7 @@ pub fn keygen_t_n_parties(
 }
 
 #[allow(dead_code)]
-pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
+pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>, message: Vec<u8>) -> SignOutput {
     let (party_keys_vec, shared_keys_vec, _pk_vec, y, vss_scheme) = keys;
 
     let private_vec = (0..shared_keys_vec.len())
@@ -362,7 +352,7 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
         .map(|i| sign_keys_vec[i].g_gamma_i.clone())
         .collect::<Vec<GE>>();
 
-    let R_vec = (0..ttag)
+    let r_vec = (0..ttag)
         .map(|_| {
             // each party i tests all B = g^b = g ^ gamma_i she received.
             let b_proof_vec = (0..ttag)
@@ -371,13 +361,11 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
                     &b_gamma_vec[0].b_proof
                 })
                 .collect::<Vec<&DLogProof>>();
-            let R = SignKeys::phase4(&delta_inv, &b_proof_vec, decommit_vec1.clone(), &bc1_vec)
+            let r = SignKeys::phase4(&delta_inv, &b_proof_vec, decommit_vec1.clone(), &bc1_vec)
                 .expect("bad gamma_i decommit");
-            R
+            r
         })
         .collect::<Vec<GE>>();
-
-    let message: [u8; 4] = [79, 77, 69, 82];
 
     let message_bn = HSha256::create_hash(&vec![&from(&message[..])]);
     let mut local_sig_vec = Vec::new();
@@ -387,12 +375,18 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
         let local_sig = LocalSignature::phase5_local_sig(
             &sign_keys_vec[i].k_i,
             &message_bn,
-            &R_vec[i],
+            &r_vec[i],
             &sigma_vec[i],
             &y,
         );
         local_sig_vec.push(local_sig);
     }
+
+    SignOutput {local_sig_vec, r_vec}
+}
+
+pub fn verify(ttag: usize, sign_output: SignOutput) {
+    let SignOutput{local_sig_vec, r_vec} = sign_output;
 
     let mut phase5_com_vec: Vec<Phase5Com1> = Vec::new();
     let mut phase_5a_decom_vec: Vec<Phase5ADecom1> = Vec::new();
@@ -423,7 +417,7 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>) {
                 &phase_5a_com_vec_clone,
                 &phase_5b_elgamal_vec_clone,
                 &phase_5a_decom_vec[i].V_i,
-                &R_vec[0],
+                &r_vec[0],
             )
             .expect("error phase5");
         phase5_com2_vec.push(phase5_com2);

@@ -257,6 +257,7 @@ name = "emerald-city"
 version = "0.2.0"
 dependencies = [
  "bit-vec",
+ "console_error_panic_hook",
  "criterion",
  "cryptoxide",
  "libsecp256k1",

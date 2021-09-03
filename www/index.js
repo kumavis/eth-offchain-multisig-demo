@@ -1,11 +1,11 @@
 import Worker from 'worker-loader!./worker.js';
 
-const button = document.getElementById('keygen');
-const progress = document.getElementById('progress');
-const label = document.getElementById('progress-label');
-const keyData = document.getElementById('keydata');
-const keyJson = document.getElementById('keyjson');
-const complete = document.getElementById('complete');
+const button = document.getElementById('keygen'),
+  progress = document.getElementById('progress'),
+  label = document.getElementById('label'),
+  data = document.getElementById('data'),
+  json = document.getElementById('json'),
+  complete = document.getElementById('complete');
 
 function show(el) {
   el.style.display = 'flex';
@@ -16,36 +16,50 @@ function hide(el) {
 }
 
 let actionType = 'keygen';
+let actionData = {};
+// Message must be Vec<u8>
+const message = [79, 77, 69, 82];
 
 if (window.Worker) {
   const worker = new Worker('worker.js');
   worker.onmessage = (e) => {
-    const {data} = e;
-    if (data.type === 'ready') {
+    if (e.data.type === 'ready') {
       show(button);
       button.addEventListener('click', (_) => {
-        if (actionType === 'verify_sign') {
-          hide(keyData);
-          label.innerText = 'Verify key signing...';
-        }
         show(progress);
+        if (actionType === 'sign_message') {
+          hide(data);
+          label.innerText = 'Signing message...';
+        } else if (actionType === 'verify_signature') {
+          hide(progress);
+          hide(button);
+          hide(data);
+        }
         // Tell the web worker to call WASM
-        worker.postMessage({type: actionType})
+        worker.postMessage({type: actionType, ...actionData})
       });
-    } else if (data.type === 'keygen_done') {
+    } else if (e.data.type === 'keygen_done') {
       hide(progress);
       // Key generation is completed
-      show(keyData);
-      keyJson.innerText = JSON.stringify(data.keys, undefined, 2);
+      show(data);
+      json.innerText = JSON.stringify(e.data.keys, undefined, 2);
 
       // Prepare for next phase
-      button.innerText = 'Verify sign';
-      actionType = 'verify_sign'
+      button.innerText = 'Sign message';
+      actionType = 'sign_message';
+      actionData = {message};
 
-    } else if (data.type === 'verify_sign_done') {
+    } else if (e.data.type === 'sign_message_done') {
       hide(progress);
-      hide(button);
-      hide(keyData);
+
+      show(data);
+      data.querySelector('summary').innerText = "Signed data";
+      json.innerText = JSON.stringify(e.data.signed, undefined, 2);
+
+      button.innerText = 'Verify signature';
+      actionType = 'verify_signature';
+
+    } else if (e.data.type === 'verify_signature_done') {
       show(complete);
     }
   }

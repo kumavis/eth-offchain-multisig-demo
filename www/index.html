@@ -31,14 +31,14 @@
       <h1>ECDSA Demo</h1>
       <button id="keygen" hidden>Generate keys</button>
       <div id="progress">
-        <label for="progress-bar" id="progress-label">Generating keys...</label>
+        <label for="progress-bar" id="label">Generating keys...</label>
         <progress id="progress-bar"></progress>
       </div>
-      <details id="keydata">
+      <details id="data">
           <summary>Key data</summary>
-          <pre id="keyjson"></pre>
+          <pre id="json"></pre>
       </details>
-      <p id="complete">Key generation and signing verification completed</p>
+      <p id="complete">Signing verification completed</p>
     </main>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
     <script src="./bootstrap.js"></script>
