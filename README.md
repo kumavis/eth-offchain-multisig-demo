@@ -7,6 +7,8 @@ platform
 - node 14.5.4
 - wasm-pack 0.9.1
 
-setup
-- wasm-pack build
-- (cd www && npm i && npm start)
+#### setup
+- yarn
+
+#### development
+- yarn start

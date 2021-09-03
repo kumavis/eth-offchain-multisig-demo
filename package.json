@@ -1,0 +1,30 @@
+{
+  "name": "secp256k1-threshold-browser",
+  "description": "demo showing secp256k1 offchain multisig in the browser",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "wasm-pack build && webpack --config webpack.config.js",
+    "start": "wasm-pack build && webpack-dev-server"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "webpack",
+    "secp256k1"
+  ],
+  "dependencies": {
+    "emerald-city": "file:./pkg"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.0",
+    "hello-wasm-pack": "^0.1.0",
+    "wasm-pack": "^0.10.0",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
+    "worker-loader": "^3.0.8"
+  }
+}
