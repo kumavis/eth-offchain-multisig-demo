@@ -83,7 +83,6 @@ macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
-
 #[wasm_bindgen(start)]
 pub fn start() {
     console_error_panic_hook::set_once();
@@ -99,12 +98,13 @@ pub fn keygen(t: usize, n: usize) -> JsValue {
 }
 
 #[wasm_bindgen]
-pub fn sign_message(t: usize, ttag: usize, keys: JsValue, message: JsValue) -> JsValue {
+pub fn sign_message(t: usize, keys: JsValue, message: JsValue, sign_indices: JsValue) -> JsValue {
     console_log!("WASM: sign message...");
     let keys: MultiKey = keys.into_serde().unwrap();
     let message: Vec<u8> = message.into_serde().unwrap();
-    // FIXME: `s` is hard-coded for t=2, n=3
-    let sign_output = sign(keys, t, ttag, vec![0, 1 ,2], message);
+    let mut sign_indices: Vec<usize> = sign_indices.into_serde().unwrap();
+    sign_indices.sort();
+    let sign_output = sign(keys, t, sign_indices.len(), sign_indices, message);
     console_log!("WASM: message signing complete.");
     JsValue::from_serde(&sign_output).unwrap()
 }
@@ -117,10 +117,7 @@ pub fn verify_signature(ttag: usize, sign_output: JsValue) {
     console_log!("WASM: signature verification complete.");
 }
 
-pub fn keygen_t_n_parties(
-    t: usize,
-    n: usize,
-) -> MultiKey {
+pub fn keygen_t_n_parties(t: usize, n: usize) -> MultiKey {
     let parames = Parameters {
         threshold: t,
         share_count: n.clone(),
@@ -231,7 +228,9 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>, message: Vec<u
     // create a vector of signing keys, one for each party.
     // throughout i will index parties
     let sign_keys_vec = (0..ttag)
-        .map(|i| SignKeys::create(&private_vec[s[i]], &vss_scheme, s[i], &s))
+        .map(|i| {
+            SignKeys::create(&private_vec[s[i]], &vss_scheme, s[i], &s)
+        })
         .collect::<Vec<SignKeys>>();
 
     // each party computes [Ci,Di] = com(g^gamma_i) and broadcast the commitments
@@ -382,11 +381,17 @@ pub fn sign(keys: MultiKey, t: usize, ttag: usize, s: Vec<usize>, message: Vec<u
         local_sig_vec.push(local_sig);
     }
 
-    SignOutput {local_sig_vec, r_vec}
+    SignOutput {
+        local_sig_vec,
+        r_vec,
+    }
 }
 
 pub fn verify(ttag: usize, sign_output: SignOutput) {
-    let SignOutput{local_sig_vec, r_vec} = sign_output;
+    let SignOutput {
+        local_sig_vec,
+        r_vec,
+    } = sign_output;
 
     let mut phase5_com_vec: Vec<Phase5Com1> = Vec::new();
     let mut phase_5a_decom_vec: Vec<Phase5ADecom1> = Vec::new();

@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>ECDSA Demo</title>
+    <title>ECDSA WASM Demo</title>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -19,28 +19,62 @@
         display: none;
       }
 
-      #progress, #data {
+      #progress, #data, #parties-list {
         display: none;
         flex-direction: column;
-        margin-top: 2em;
+        align-items: flex-start;
+      }
+
+      div, details, p, button {
+        margin-bottom: 1em;
+      }
+
+      label {
+        display: block;
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>ECDSA Demo</h1>
+      <h1>ECDSA WASM Demo</h1>
+      <p id="intro">The message will be signed when THRESHOLD + 1 parties opt-in.</p>
+      <div id="params">
+        <div>
+          <label>Message:</label>
+          <span id="payload"></span>
+        </div>
+        <div>
+          <label for="threshold">Threshold:</label>
+          <input id="threshold" type="number" value="1" min="1" max="2" step="1">
+        </div>
+        <div>
+          <label for="parties">Parties:</label>
+          <input id="parties" type="number" value="3" min="2" max="9" step="1">
+        </div>
+      </div>
+
       <button id="keygen" hidden>Generate keys</button>
+      <button id="verify" hidden>Verify signature</button>
+
       <div id="progress">
         <label for="progress-bar" id="label">Generating keys...</label>
         <progress id="progress-bar"></progress>
       </div>
+      <div id="parties-list"></ddiv>
       <details id="data">
           <summary>Key data</summary>
           <pre id="json"></pre>
       </details>
-      <p id="complete">Signing verification completed</p>
     </main>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <template id="party-item">
+      <h3>Party</h3>
+      <details>
+          <summary>Key data</summary>
+          <pre></pre>
+      </details>
+      <button>Sign message</button>
+    </template>
     <script src="./bootstrap.js"></script>
   </body>
 </html>

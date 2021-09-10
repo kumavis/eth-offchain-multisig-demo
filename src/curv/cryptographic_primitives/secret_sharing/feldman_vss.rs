@@ -418,5 +418,4 @@ mod tests {
         let w = l0 * secret_shares[0].clone() + l2 * secret_shares[2].clone();
         assert_eq!(w, secret_reconstructed);
     }
-
 }
