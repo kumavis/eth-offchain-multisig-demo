@@ -1,5 +1,5 @@
 // NOTE: must be an asynchronous import
-import('emerald-city')
+import('../pkg/emerald_city.js')
   .then((wasm) => {
     const signThreshold = 2;
     const numParties = 3;

@@ -3300,9 +3300,9 @@ source-map-resolve@^0.5.0:
     urix "^0.1.0"
 
 source-map-support@~0.5.12:
-  version "0.5.19"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61"
-  integrity sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==
+  version "0.5.20"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.20.tgz#12166089f8f5e5e8c56926b377633392dd2cb6c9"
+  integrity sha512-n1lZZ8Ve4ksRqizaBQgxXDgKwttHDhyfQjA6YZZn8+AroHbsIz+JjwxQDxbp+7y5OYCI8t1Yk7etjD9CRd2hIw==
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
@@ -3700,10 +3700,10 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-wasm-pack@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/wasm-pack/-/wasm-pack-0.10.0.tgz#b486fad9e578e9a232602a3f8a4b6513040c0c95"
-  integrity sha512-E+bs6Bh5mmSPT5lqEsyhEsFSVIIGYFEq96oG+SfQqY8gv8Hvn7TB3FGD+gVL5On5TCOgPQb7Sr2dbLkj9cN0QQ==
+wasm-pack@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/wasm-pack/-/wasm-pack-0.10.1.tgz#5d50649aee827192c42c941991856d47b90cff27"
+  integrity sha512-bw480KaaJQhL6UX8wAm6YCO497uaULDrsvUey3EB86dKAfFc6qCGVN1kItcwUklEeufonwo9mwz9/fy9xLOPtQ==
   dependencies:
     binary-install "^0.1.0"
 
@@ -3815,7 +3815,7 @@ webpack-sources@^1.4.0, webpack-sources@^1.4.1:
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-webpack@^4.29.3:
+webpack@^4.0.0:
   version "4.46.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.46.0.tgz#bf9b4404ea20a073605e0a011d188d77cb6ad542"
   integrity sha512-6jJuJjg8znb/xRItk7bkT0+Q7AHCYjjFnvKIWQPkNIOyRqoCGvkOs0ipeQzrqz4l5FtN5ZI/ukEHroeX/o1/5Q==
