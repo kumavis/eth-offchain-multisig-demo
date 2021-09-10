@@ -15,9 +15,6 @@
     "webpack",
     "secp256k1"
   ],
-  "dependencies": {
-    "emerald-city": "file:./pkg"
-  },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.0",
     "hello-wasm-pack": "^0.1.0",
